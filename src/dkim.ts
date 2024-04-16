@@ -63,16 +63,18 @@ function pkcs1v15Encode(
     }
     // Check if this is acceptable to do in provable context. new Array? 
     const PS = new Array(PSLength).fill(0xFF);
+    // create number of 0xFF bytes based on calculated PS length
     const PSBytes = Bytes(PSLength).from(PS); 
 
     // create padding with '0001' before the 'FF' sequence and then end with '00' 
     const pad1 = Bytes(2).fromHex('0001'); 
     const pad2 = Bytes(1).fromHex('00'); 
+    // '0001' + PSBytes + '00' 
     let padding = pad1.bytes.concat(PSBytes.bytes).concat(pad2.bytes); 
 
-    // concat digestAlgorithm + digest 
-    let digestinfo = digestAlgorithm.bytes.concat(digest.bytes); 
-    //final conact: padding + digestInfo 
-    let x = Bytes(_emLen).from(padding.concat(digestinfo)); 
+    // digestInfo = digestAlgorithm + digest = '3031300d060960864801650304020105000420' + digest 
+    let digestInfo = digestAlgorithm.bytes.concat(digest.bytes); 
+    // final: '0001' + PSBytes + '00' + '3031300d060960864801650304020105000420' + digest
+    let x = Bytes(_emLen).from(padding.concat(digestInfo)); 
     return x 
 }
